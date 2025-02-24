@@ -8,7 +8,8 @@ class IPAddress:
         else:
             raise ValueError("Incorrect ip address value")
 
-    def validate_addr(self,ip: str) -> bool: 
+    @staticmethod
+    def validate_addr(ip: str) -> bool: 
         octets = ip.split(".")
         if(len(octets) == 4):
             in_threshold = lambda o: 0 <= int(o) <= 255
@@ -22,14 +23,26 @@ class IPAddress:
 class Network:
 
     ip: IPAddress
-    cidr: int 
+    cidr: int #usunac zamiast tego w if wyliczac maske
     mask: int
+    host_number: int
+    first_address: IPAddress
     gateway: IPAddress
     broadcast: IPAddress
 
+    def __init__(self, ip: IPAddress, cidr: int):
+        if(self.validate_cidr(cidr)):
+            self.cidr = cidr
+        else:
+            raise ValueError("Incorrect cidr value") 
+        
+        self.ip = ip
+        self.host_number = self.calc_host_number()
+        
 
-print(IPAddress.validate_addr(None, "192.168.1.1"))   # True
-print(IPAddress.validate_addr(None, "256.168.1.1"))   # False
-print(IPAddress.validate_addr(None, "192.168.-1.1"))  # False
-print(IPAddress.validate_addr(None, "192.168.one.1")) # False
-print(IPAddress.validate_addr(None, "300.10.10.10"))  # False
+    @staticmethod
+    def validate_cidr(cidr: int):
+        return 0 <= cidr <= 32
+
+    def calc_host_number(self):
+        return pow(2,32-self.cidr)-2
