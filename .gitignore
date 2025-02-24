@@ -1,0 +1,3 @@
+sub_env/
+.env
+__pycache__/
